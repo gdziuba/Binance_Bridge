@@ -1,4 +1,4 @@
-import requests, json, time, config, config_Real
+import requests, json, time
 from chalice import Chalice
 from binance.enums import *
 from binance.client import Client
@@ -6,14 +6,10 @@ from binance.exceptions import BinanceAPIException, BinanceOrderException
 
 app = Chalice(app_name='Binance')
 
-#this is a random change
-
-
-
 #  *******************************
 #   To make everything work, Change config_Real to config for both keys
 #  *******************************
-client = Client(config_Real.API_KEY, config_Real.SECRET_KEY)
+client = Client('key', 'secret')
 
 # Buy Limit
 def buyFunc(webhook_message):
@@ -170,6 +166,8 @@ def buyMarketFunc(webhook_message):
 
 @app.route('/buy_crypto', methods=['POST'])
 def buy_crypto():
+
+
     request = app.current_request
     webhook_message = request.json_body
 
