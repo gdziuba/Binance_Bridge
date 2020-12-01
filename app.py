@@ -8,6 +8,11 @@ app = Chalice(app_name='Binance')
 
 #this is a random change
 
+
+
+#  *******************************
+#   To make everything work, Change config_Real to config for both keys
+#  *******************************
 client = Client(config_Real.API_KEY, config_Real.SECRET_KEY)
 
 
