@@ -1,4 +1,4 @@
-import requests, json, time, config
+import requests, json, time, config, config_Real
 from chalice import Chalice
 from binance.enums import *
 from binance.client import Client
@@ -15,33 +15,31 @@ app = Chalice(app_name='Binance')
 #  *******************************
 client = Client(config_Real.API_KEY, config_Real.SECRET_KEY)
 
-
+# Buy Limit
 def buyFunc(webhook_message):
-    # How much is available
-    try:
-        balance = client.get_asset_balance(asset='USDT')
-
-    except BinanceAPIException as e:
-        # error handling goes here
-        print(e)
-        pass
-    
-    except BinanceOrderException as e:
-        # error handling goes here
-        print(e)
-        pass
-    
-    calqty = (float(balance['free']) / float(webhook_message['price'])) * float(webhook_message['qtypct'])
 
     # Place Buy Order
     try:
-        order = client.order_limit_buy(
-            symbol=webhook_message['ticker'],
-            side=SIDE_BUY,
-            type=ORDER_TYPE_LIMIT,
-            timeInForce=TIME_IN_FORCE_GTC,
-            quantity=round(calqty,2),
-            price=webhook_message['price'])
+        if "qtypct" in webhook_message:
+            balance = client.get_asset_balance(asset=webhook_message['base'])
+            calqty = (float(balance['free']) / float(webhook_message['price'])) * float(webhook_message['qtypct'])
+
+            order = client.order_limit_buy(
+                symbol=webhook_message['ticker'],
+                side=SIDE_BUY,
+                type=ORDER_TYPE_LIMIT,
+                timeInForce=TIME_IN_FORCE_GTC,
+                quantity=round(calqty,2),
+                price=round(float(webhook_message['price']),4))
+        
+        elif "qty" in webhook_message:
+            order = client.order_limit_buy(
+                symbol=webhook_message['ticker'],
+                side=SIDE_BUY,
+                type=ORDER_TYPE_LIMIT,
+                timeInForce=TIME_IN_FORCE_GTC,
+                quantity=round(float(webhook_message['qty']),4),
+                price=round(float(webhook_message['price']),4))
     
     except BinanceAPIException as e:
         # error handling goes here
@@ -73,15 +71,29 @@ def cancelFunc(webhook_message):
     
     return openorders
 
+# Sell Limit
 def sellFunc(webhook_message):
     try:
-        order = client.order_limit_sell(
-            symbol=webhook_message['ticker'],
-            side=SIDE_SELL,
-            type=ORDER_TYPE_LIMIT,
-            timeInForce=TIME_IN_FORCE_GTC,
-            quantity=webhook_message['qty'],
-            price=webhook_message['price'])
+        if "qtypct" in webhook_message:
+            balance = client.get_asset_balance(asset=webhook_message['base'])
+            calqty = (float(balance['free']) / float(webhook_message['price'])) * float(webhook_message['qtypct'])
+
+            order = client.order_limit_sell(
+                symbol=webhook_message['ticker'],
+                side=SIDE_SELL,
+                type=ORDER_TYPE_LIMIT,
+                timeInForce=TIME_IN_FORCE_GTC,
+                quantity=round(calqty,2),
+                price=round(float(webhook_message['price']),4))
+
+        elif "qty" in webhook_message:    
+            order = client.order_limit_sell(
+                symbol=webhook_message['ticker'],
+                side=SIDE_SELL,
+                type=ORDER_TYPE_LIMIT,
+                timeInForce=TIME_IN_FORCE_GTC,
+                quantity=round(float(webhook_message['qty']),4),
+                price=round(float(webhook_message['price']),4))
     
     except BinanceAPIException as e:
         # error handling goes here
@@ -95,6 +107,66 @@ def sellFunc(webhook_message):
 def delayFunc(webhook_message):
     time.sleep(webhook_message['seconds'])
 
+def sellMarketFunc(webhook_message):
+    try:
+        if "qtypct" in webhook_message:
+            balance = client.get_asset_balance(asset=webhook_message['base'])
+            avg_price = client.get_avg_price(symbol=webhook_message['ticker'])
+
+            calqty = (float(balance['free']) / float(avg_price['price'])) * float(webhook_message['qtypct'])
+            order = client.order_market_sell(
+                symbol=webhook_message['ticker'],
+                quantity=round(calqty,2))
+
+        elif "qty" in webhook_message:
+            order = client.order_market_sell(
+                symbol=webhook_message['ticker'], 
+                quantity=round(float(webhook_message['qty']),4))
+    
+    except BinanceAPIException as e:
+        # error handling goes here
+        print(e)
+        pass
+    
+    except BinanceOrderException as e:
+        # error handling goes here
+        print(e)
+        pass
+    
+        return order
+
+
+def buyMarketFunc(webhook_message):
+    try:
+        if "qtypct" in webhook_message:
+            
+            balance = client.get_asset_balance(asset=webhook_message['base'])
+            avg_price = client.get_avg_price(symbol=webhook_message['ticker'])
+
+            calqty = (float(balance['free']) / float(avg_price['price'])) * float(webhook_message['qtypct'])
+            order = client.order_market_buy(
+                symbol=webhook_message['ticker'],
+                quantity=round(calqty,2))
+
+        elif "qty" in webhook_message:
+            order = client.order_market_buy(
+                symbol=webhook_message['ticker'],
+                quantity=round(float(webhook_message['qty']),4))
+    
+
+    
+    except BinanceAPIException as e:
+                # error handling goes here
+                print(e)
+                pass
+            
+    except BinanceOrderException as e:
+        # error handling goes here
+        print(e)
+        pass
+    return order
+
+
 
 @app.route('/buy_crypto', methods=['POST'])
 def buy_crypto():
@@ -106,15 +178,24 @@ def buy_crypto():
         if messages['order'] == "cancel":
             cancelFunc(messages)
         
-        # This Opens Buy Orders
-        if messages['order'] == "buy" and messages['type'] == "limit":
+        # This Opens limit Buy Orders
+        elif messages['order'] == "buy" and messages['type'] == "limit":
             buyFunc(messages)
 
-        #This Opens Sell Orders
-        if messages['order'] == "sell" and messages['type'] == "limit":
+        #This Opens limit Sell Orders
+        elif messages['order'] == "sell" and messages['type'] == "limit":
             sellFunc(messages)
 
-        if messages['delay'] == "true":
+        #This will open Market Buy Orders
+        elif messages['order'] == "buy" and messages['type'] == "market":
+            buyMarketFunc(messages)
+
+        #This will open Mareket Sell Orders
+        elif messages['order'] == "sell" and messages['type'] == "market":
+            sellMarketFunc(messages)
+   
+        #This is a delay function - Untested
+        elif messages['delay'] == "true":
             delayFunc(messages)
 
     return 

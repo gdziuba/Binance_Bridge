@@ -24,31 +24,101 @@ Sample Structure:
 
 Buy order then a sell order coming from TradingView
 
-[{
-"order": "buy",
-"type": "limit",
-"ticker": "BATUSDT",
-"price": "0.2248",
-"qtypct": ".9995",
-"delay": "false"
-},{
-"order": "sell",
-"type": "limit",
-"ticker": "BATUSDT",
-"price": "0.2406",
-"qty": "900",
-"delay": "false"
-}]
+Juba Short Configurations:
 
-Cancel Orders
+First Sell ////////////////
+
 [{
 "order": "cancel",
-"ticker": "BATUSDT",
+"ticker": "{{ticker}}",
+"delay": "false"
+},
+{
+"order": "sell",
+"type": "limit",
+"ticker": "{{ticker}}",
+"price": "{{plot_7}}",
+"qty": "{{plot_4}}",
+"delay": "false"
+},
+{
+"order": "sell",
+"type": "limit",
+"ticker": "{{ticker}}",
+"price": "{{plot_6}}",
+"qty": "{{plot_4}}",
 "delay": "false"
 }]
 
-Delay
+
+First Buy ///////////////
+
 [{
-    "delay": "true",
-    "seconds": "10"
+"order": "buy",
+"base": "USDT",
+"type": "limit",
+"ticker": "{{ticker}}",
+"price": "{{plot_5}}",
+"qtypct": ".9998",
+"delay": "false"
+}]
+
+Following Shorts /////////
+
+
+[{
+"order": "cancel",
+"ticker": "{{ticker}}",
+"delay": "false"
+},
+{
+"order": "sell",
+"type": "limit",
+"ticker": "{{ticker}}",
+"price": "{{plot_6}}",
+"qty": "{{plot_4}}",
+"delay": "false"
+},
+{
+"order": "buy",
+"base": "USDT",
+"type": "limit",
+"ticker": "{{ticker}}",
+"price": "{{plot_5}}",
+"qtypct": ".9998",
+"delay": "false"
+}]
+
+Close Shorts ///////////
+
+[{
+"order": "cancel",
+"ticker": "{{ticker}}",
+"delay": "false"
+},
+{
+"order": "buy",
+"type": "market",
+"ticker": "{{ticker}}",
+"price": "{{close}}",
+"qtypct": ".90",
+"delay": "false"
+},
+{
+"order": "NULL",
+"base": "USDT",
+"type": "NULL",
+"ticker": "{{ticker}}",
+"price": "100",
+"qtypct": ".9998",
+"delay": "true",
+"seconds": 5
+},
+{
+"order": "buy",
+"type": "market",
+"ticker": "{{ticker}}",
+"price": "{{close}}",
+"qtypct": ".9998",
+"delay": "false"
 }]
