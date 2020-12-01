@@ -1,4 +1,4 @@
-import requests, json, time
+import requests, json, time, math
 from chalice import Chalice
 from binance.enums import *
 from binance.client import Client
@@ -15,6 +15,15 @@ client = Client('key', 'secret')
 # Buy Limit
 def buyFunc(webhook_message):
 
+    info = client.get_symbol_info(webhook_message['ticker'])
+    filters = info['filters']
+    _min_notional = filters
+    for f in filters:
+        print("filter~~~~~~~~~~~~ " + str(f))
+        if f['filterType'] == 'LOT_SIZE': 
+            _step_size = float(f['stepSize'])
+            _precision_quan = int(round(-math.log(_step_size, 10), 0))
+            print(_precision_quan)
     # Place Buy Order
     try:
         if "qtypct" in webhook_message:
@@ -26,8 +35,9 @@ def buyFunc(webhook_message):
                 side=SIDE_BUY,
                 type=ORDER_TYPE_LIMIT,
                 timeInForce=TIME_IN_FORCE_GTC,
-                quantity=round(calqty,2),
-                price=round(float(webhook_message['price']),4))
+                quantity=round(calqty,_precision_quan),
+                price=round(float(webhook_message['price']),8))
+            return order
         
         elif "qty" in webhook_message:
             order = client.order_limit_buy(
@@ -35,8 +45,9 @@ def buyFunc(webhook_message):
                 side=SIDE_BUY,
                 type=ORDER_TYPE_LIMIT,
                 timeInForce=TIME_IN_FORCE_GTC,
-                quantity=round(float(webhook_message['qty']),4),
-                price=round(float(webhook_message['price']),4))
+                quantity=round(float(webhook_message['qty']),_precision_quan),
+                price=round(float(webhook_message['price']),8))
+            return order
     
     except BinanceAPIException as e:
         # error handling goes here
@@ -47,7 +58,7 @@ def buyFunc(webhook_message):
         # error handling goes here
         print(e)
         pass
-    return order
+    return
 
 
 def cancelFunc(webhook_message):
@@ -70,6 +81,16 @@ def cancelFunc(webhook_message):
 
 # Sell Limit
 def sellFunc(webhook_message):
+
+    info = client.get_symbol_info(webhook_message['ticker'])
+    filters = info['filters']
+    _min_notional = filters
+    for f in filters:
+        print("filter~~~~~~~~~~~~ " + str(f))
+        if f['filterType'] == 'LOT_SIZE': 
+            _step_size = float(f['stepSize'])
+            _precision_quan = int(round(-math.log(_step_size, 10), 0))
+            print(_precision_quan)
     try:
         if "qtypct" in webhook_message:
             balance = client.get_asset_balance(asset=webhook_message['base'])
@@ -80,8 +101,8 @@ def sellFunc(webhook_message):
                 side=SIDE_SELL,
                 type=ORDER_TYPE_LIMIT,
                 timeInForce=TIME_IN_FORCE_GTC,
-                quantity=round(calqty,2),
-                price=round(float(webhook_message['price']),4))
+                quantity=round(calqty,_precision_quan),
+                price=round(float(webhook_message['price']),8))
 
         elif "qty" in webhook_message:    
             order = client.order_limit_sell(
@@ -89,8 +110,8 @@ def sellFunc(webhook_message):
                 side=SIDE_SELL,
                 type=ORDER_TYPE_LIMIT,
                 timeInForce=TIME_IN_FORCE_GTC,
-                quantity=round(float(webhook_message['qty']),4),
-                price=round(float(webhook_message['price']),4))
+                quantity=round(float(webhook_message['qty']),_precision_quan),
+                price=round(float(webhook_message['price']),8))
     
     except BinanceAPIException as e:
         # error handling goes here
@@ -105,6 +126,15 @@ def delayFunc(webhook_message):
     time.sleep(webhook_message['seconds'])
 
 def sellMarketFunc(webhook_message):
+    info = client.get_symbol_info(webhook_message['ticker'])
+    filters = info['filters']
+    _min_notional = filters
+    for f in filters:
+        print("filter~~~~~~~~~~~~ " + str(f))
+        if f['filterType'] == 'LOT_SIZE': 
+            _step_size = float(f['stepSize'])
+            _precision_quan = int(round(-math.log(_step_size, 10), 0))
+            print(_precision_quan)
     try:
         if "qtypct" in webhook_message:
             balance = client.get_asset_balance(asset=webhook_message['base'])
@@ -113,12 +143,12 @@ def sellMarketFunc(webhook_message):
             calqty = (float(balance['free']) / float(avg_price['price'])) * float(webhook_message['qtypct'])
             order = client.order_market_sell(
                 symbol=webhook_message['ticker'],
-                quantity=round(calqty,2))
+                quantity=round(calqty,_precision_quan))
 
         elif "qty" in webhook_message:
             order = client.order_market_sell(
                 symbol=webhook_message['ticker'], 
-                quantity=round(float(webhook_message['qty']),4))
+                quantity=round(float(webhook_message['qty']),_precision_quan))
     
     except BinanceAPIException as e:
         # error handling goes here
@@ -134,6 +164,15 @@ def sellMarketFunc(webhook_message):
 
 
 def buyMarketFunc(webhook_message):
+    info = client.get_symbol_info(webhook_message['ticker'])
+    filters = info['filters']
+    _min_notional = filters
+    for f in filters:
+        print("filter~~~~~~~~~~~~ " + str(f))
+        if f['filterType'] == 'LOT_SIZE': 
+            _step_size = float(f['stepSize'])
+            _precision_quan = int(round(-math.log(_step_size, 10), 0))
+            print(_precision_quan)
     try:
         if "qtypct" in webhook_message:
             
@@ -143,12 +182,12 @@ def buyMarketFunc(webhook_message):
             calqty = (float(balance['free']) / float(avg_price['price'])) * float(webhook_message['qtypct'])
             order = client.order_market_buy(
                 symbol=webhook_message['ticker'],
-                quantity=round(calqty,2))
+                quantity=round(calqty,_precision_quan))
 
         elif "qty" in webhook_message:
             order = client.order_market_buy(
                 symbol=webhook_message['ticker'],
-                quantity=round(float(webhook_message['qty']),4))
+                quantity=round(float(webhook_message['qty']),_precision_quan))
     
 
     

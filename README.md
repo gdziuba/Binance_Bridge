@@ -6,6 +6,7 @@ virtualenv
 Chalice
 AWS CLI
 
+
 Guide to setup environment:
 
 https://chalice-workshop.readthedocs.io/en/latest/todo-app/part1/00-intro-chalice.html
@@ -21,6 +22,19 @@ https://github.com/hackingthemarkets/binance-tutorials
 
 https://github.com/hackingthemarkets/tradingview-webhooks
 
+
+# New Project
+
+
+
+chalice new-project <<Project Name>>
+cd project
+git clone https://github.com/gdziuba/Binance_Bridge.git
+pip3 install -r requirements.txt
+Change api in app.py
+Test Local
+chalice local 
+chalice deploy
 
 Make sure to add your api keys to the script
 
