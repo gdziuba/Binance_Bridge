@@ -1,4 +1,4 @@
-import requests, json, time
+import requests, json, time, config
 from chalice import Chalice
 from binance.enums import *
 from binance.client import Client
@@ -6,10 +6,9 @@ from binance.exceptions import BinanceAPIException, BinanceOrderException
 
 app = Chalice(app_name='Binance')
 
-API_KEY = 'mSxW5xpbUdsfOx0twZyjl2gpvQF29lt9peQqE3y1pkkyfaJlk4BYxkIYHMpHDpkl'
-SECRET_KEY = 'SakaEvRu8SyX7hxCZcd18Bn5JTAiuCyRS3FkVAJSHZRkWfZR6sjdWad5V7RPdWMS'
+#this is a random change
 
-client = Client(API_KEY, SECRET_KEY)
+client = Client(config_Real.API_KEY, config_Real.SECRET_KEY)
 
 
 def buyFunc(webhook_message):
