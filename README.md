@@ -1,6 +1,6 @@
 # Binance_Bridge
 
-Process of setting things up require the following
+## Process of setting things up require the following
 
 Python 2.7.x
 
@@ -28,7 +28,7 @@ https://github.com/hackingthemarkets/binance-tutorials
 https://github.com/hackingthemarkets/tradingview-webhooks
 
 
-Useful commands
+## Useful commands
 
 
 chalice new-project <<Project Name>>
@@ -40,13 +40,9 @@ Test Local
 chalice local 
 chalice deploy
 
-Make sure to add your api keys to the script
 
-Sample Structure:
 
-Buy order then a sell order coming from TradingView
-
-Juba Short Configurations:
+## Juba Short Configurations from TV:
 
 First Sell ////////////////
 
