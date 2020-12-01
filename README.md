@@ -5,7 +5,7 @@ This will be the guide that I used to setup my instance.  See links below to get
 https://www.youtube.com/watch?v=rvhnz1yBHgQ
 
 Chalice Docs
-
+ 
 https://chalice-workshop.readthedocs.io/en/latest/todo-app/part1/00-intro-chalice.html
 
 https://github.com/hackingthemarkets/binance-tutorials
