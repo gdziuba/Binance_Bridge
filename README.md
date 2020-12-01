@@ -1,9 +1,13 @@
 # Binance_Bridge
 
 Process of setting things up require the following
+
 Python 2.7.x
+
 virtualenv
+
 Chalice
+
 AWS CLI
 
 Guide to setup environment:
