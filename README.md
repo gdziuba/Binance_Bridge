@@ -10,6 +10,7 @@ Chalice
 
 AWS CLI
 
+AWS Secret Manager: https://aws.amazon.com/secrets-manager/
 
 Guide to setup environment:
 
@@ -27,8 +28,7 @@ https://github.com/hackingthemarkets/binance-tutorials
 https://github.com/hackingthemarkets/tradingview-webhooks
 
 
-# New Project
-
+Useful commands
 
 
 chalice new-project <<Project Name>>
