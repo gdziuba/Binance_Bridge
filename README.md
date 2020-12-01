@@ -1,7 +1,16 @@
 # Binance_Bridge
 
+Process of setting things up require the following
+Python 2.7.x
+virtualenv
+Chalice
+AWS CLI
 
-This will be the guide that I used to setup my instance.  See links below to get your environment setup.
+Guide to setup environment:
+
+https://chalice-workshop.readthedocs.io/en/latest/todo-app/part1/00-intro-chalice.html
+
+This is where I got the ideas from.  This will help understand the process:
 https://www.youtube.com/watch?v=rvhnz1yBHgQ
 
 Chalice Docs
@@ -13,12 +22,7 @@ https://github.com/hackingthemarkets/binance-tutorials
 https://github.com/hackingthemarkets/tradingview-webhooks
 
 
-Make sure to Adjust:
-client = Client(config_Real.API_KEY, config_Real.SECRET_KEY)
-to:
-client = Client(config.API_KEY, config.SECRET_KEY)
-
-And add your keys to the config file
+Make sure to add your api keys to the script
 
 Sample Structure:
 

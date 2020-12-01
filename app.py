@@ -7,7 +7,8 @@ from binance.exceptions import BinanceAPIException, BinanceOrderException
 app = Chalice(app_name='Binance')
 
 #  *******************************
-#   To make everything work, Change config_Real to config for both keys
+#   Replace Key and secret with respective api keys from binance
+#   Will incorporate AWS Secrets at a later time for a more secure way of storing keys
 #  *******************************
 client = Client('key', 'secret')
 
