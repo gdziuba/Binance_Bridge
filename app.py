@@ -6,7 +6,7 @@ from binance.enums import *
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceOrderException
 from botocore.exceptions import ClientError
-#test
+
 app = Chalice(app_name='Binance')
 
 def get_secret():
