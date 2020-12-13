@@ -2,7 +2,7 @@
 
 ## Process of setting things up require the following
 
-Python 2.7.x
+Python 3.7.x
 
 virtualenv
 
