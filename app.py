@@ -60,7 +60,7 @@ def get_secret():
             decoded_binary_secret = base64.b64decode(get_secret_value_response['SecretBinary'])
     return secret
 
-apikeys = json.loads(get_secret())
+#apikeys = json.loads(get_secret())
 
 
 #  *******************************
@@ -68,8 +68,8 @@ apikeys = json.loads(get_secret())
 #   Will incorporate AWS Secrets at a later time for a more secure way of storing keys
 #  *******************************
 #   Hard code with the following
-#   client = Client('your key', 'your secret')
-client = Client(apikeys['gmail2key'], apikeys['gmail2secret'])
+client = Client('xxxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx')
+#client = Client(apikeys['key'], apikeys['secret'])
 
 # Buy Limit
 def buyFunc(webhook_message):
@@ -83,6 +83,10 @@ def buyFunc(webhook_message):
             _step_size = float(f['stepSize'])
             _precision_quan = int(round(-math.log(_step_size, 10), 0))
             print(_precision_quan)
+        if f['filterType'] == 'PRICE_FILTER': 
+            _tickSize = float(f['tickSize'])
+            _precision_tick = int(round(-math.log(_tickSize, 10), 0))
+            print(_precision_tick)
     # Place Buy Order
     try:
         if "qtypct" in webhook_message:
@@ -95,7 +99,7 @@ def buyFunc(webhook_message):
                 type=ORDER_TYPE_LIMIT,
                 timeInForce=TIME_IN_FORCE_GTC,
                 quantity=round(calqty,_precision_quan),
-                price=round(float(webhook_message['price']),8))
+                price=round(float(webhook_message['price']),_precision_tick))
             return order
         
         elif "qty" in webhook_message:
@@ -105,9 +109,19 @@ def buyFunc(webhook_message):
                 type=ORDER_TYPE_LIMIT,
                 timeInForce=TIME_IN_FORCE_GTC,
                 quantity=round(float(webhook_message['qty']),_precision_quan),
-                price=round(float(webhook_message['price']),8))
+                price=round(float(webhook_message['price']),_precision_tick))
             return order
     
+        elif "qtyusd" in webhook_message:
+            buyqty = float(webhook_message['qtyusd']) / float(webhook_message['price'])
+            order = client.order_limit_buy(
+                symbol=webhook_message['ticker'],
+                side=SIDE_BUY,
+                type=ORDER_TYPE_LIMIT,
+                timeInForce=TIME_IN_FORCE_GTC,
+                quantity=round(float(buyqty),_precision_quan),
+                price=round(float(webhook_message['price']),_precision_tick))
+
     except BinanceAPIException as e:
         # error handling goes here
         print(e)
@@ -150,6 +164,10 @@ def sellFunc(webhook_message):
             _step_size = float(f['stepSize'])
             _precision_quan = int(round(-math.log(_step_size, 10), 0))
             print(_precision_quan)
+        if f['filterType'] == 'PRICE_FILTER': 
+            _tickSize = float(f['tickSize'])
+            _precision_tick = int(round(-math.log(_tickSize, 10), 0))
+            print(_precision_tick)
     try:
         if "qtypct" in webhook_message:
             balance = client.get_asset_balance(asset=webhook_message['base'])
@@ -161,7 +179,7 @@ def sellFunc(webhook_message):
                 type=ORDER_TYPE_LIMIT,
                 timeInForce=TIME_IN_FORCE_GTC,
                 quantity=round(calqty,_precision_quan),
-                price=round(float(webhook_message['price']),8))
+                price=round(float(webhook_message['price']),_precision_tick))
 
         elif "qty" in webhook_message:    
             order = client.order_limit_sell(
@@ -170,7 +188,18 @@ def sellFunc(webhook_message):
                 type=ORDER_TYPE_LIMIT,
                 timeInForce=TIME_IN_FORCE_GTC,
                 quantity=round(float(webhook_message['qty']),_precision_quan),
-                price=round(float(webhook_message['price']),8))
+                price=round(float(webhook_message['price']),_precision_tick))
+
+        elif "qtyusd" in webhook_message:
+            sellqty = float(webhook_message['qtyusd']) / float(avg_price['price'])    
+            order = client.order_limit_sell(
+                symbol=webhook_message['ticker'],
+                side=SIDE_SELL,
+                type=ORDER_TYPE_LIMIT,
+                timeInForce=TIME_IN_FORCE_GTC,
+                quantity=round(float(sellqty),_precision_quan),
+                price=round(float(webhook_message['price']),_precision_tick))
+        
     
     except BinanceAPIException as e:
         # error handling goes here
@@ -208,6 +237,13 @@ def sellMarketFunc(webhook_message):
             order = client.order_market_sell(
                 symbol=webhook_message['ticker'], 
                 quantity=round(float(webhook_message['qty']),_precision_quan))
+
+        elif "qtyusd" in webhook_message:
+            avg_price = client.get_avg_price(symbol=webhook_message['ticker'])   
+            sellqty = float(webhook_message['qtyusd']) / float(avg_price['price'])
+            order = client.order_market_sell(
+                symbol=webhook_message['ticker'],
+                quantity=round(float(sellqty),_precision_quan))
     
     except BinanceAPIException as e:
         # error handling goes here
@@ -247,13 +283,20 @@ def buyMarketFunc(webhook_message):
             order = client.order_market_buy(
                 symbol=webhook_message['ticker'],
                 quantity=round(float(webhook_message['qty']),_precision_quan))
-    
+        
+        elif "qtyusd" in webhook_message:
+            avg_price = client.get_avg_price(symbol=webhook_message['ticker'])   
+            buyqty = float(webhook_message['qtyusd']) / float(webhook_message['price'])
+            print(buyqty)
+            order = client.order_market_buy(
+                symbol=webhook_message['ticker'],
+                quantity=round(float(buyqty),_precision_quan))
 
-    
+
     except BinanceAPIException as e:
-                # error handling goes here
-                print(e)
-                pass
+        # error handling goes here
+        print(e)
+        pass
             
     except BinanceOrderException as e:
         # error handling goes here
