@@ -68,8 +68,8 @@ def get_secret():
 #   Will incorporate AWS Secrets at a later time for a more secure way of storing keys
 #  *******************************
 #   Hard code with the following
-client = Client('xxxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx')
-#client = Client(apikeys['key'], apikeys['secret'])
+client = Client('xxxxxxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxxxxxxxx')
+#client = Client(apikeys['gmail1key'], apikeys['gmail1secret'])
 
 # Buy Limit
 def buyFunc(webhook_message):
@@ -212,7 +212,7 @@ def sellFunc(webhook_message):
 
 def delayFunc(webhook_message):
     time.sleep(webhook_message['seconds'])
-
+#Sell Market
 def sellMarketFunc(webhook_message):
     info = client.get_symbol_info(webhook_message['ticker'])
     filters = info['filters']
@@ -228,7 +228,8 @@ def sellMarketFunc(webhook_message):
             balance = client.get_asset_balance(asset=webhook_message['base'])
             avg_price = client.get_avg_price(symbol=webhook_message['ticker'])
 
-            calqty = (float(balance['free']) / float(avg_price['price'])) * float(webhook_message['qtypct'])
+            #calqty = (float(balance['free']) / float(avg_price['price'])) * float(webhook_message['qtypct'])
+            calqty = float(balance['free']) * float(webhook_message['qtypct'])
             order = client.order_market_sell(
                 symbol=webhook_message['ticker'],
                 quantity=round(calqty,_precision_quan))
@@ -257,7 +258,7 @@ def sellMarketFunc(webhook_message):
     
         return order
 
-
+# Buy Market
 def buyMarketFunc(webhook_message):
     info = client.get_symbol_info(webhook_message['ticker'])
     filters = info['filters']
@@ -302,7 +303,7 @@ def buyMarketFunc(webhook_message):
         # error handling goes here
         print(e)
         pass
-    return order
+    #return order
 
 
 
